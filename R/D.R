@@ -1,13 +1,13 @@
-D <- function(buildings, code, pop, area) {
-  cd <- unique(code[!is.na(code)])
-  buildings$D <- 0
+D <- function(target, sourcecode, sourcepop, area) {
+  cd <- unique(sourcecode[!is.na(sourcecode)])
+  target$D <- 0
   for (i in 1:length(cd)) {
-    s <- as.numeric(sum(area[code == cd[i]], na.rm = T))
-    p <- as.numeric(unique(pop[code == cd[i]]))
+    s <- as.numeric(sum(area[sourcecode == cd[i]], na.rm = T))
+    p <- as.numeric(unique(sourcepop[sourcecode == cd[i]]))
     if (s > 0) {
       D <- p/s
-      buildings$D[code == cd[i]] <- D
+      target$D[sourcecode == cd[i]] <- D
     }
   }
-  return(buildings)
+  return(target)
 }
