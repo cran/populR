@@ -2,43 +2,56 @@
 % Please edit documentation in R/pp_estimate.R
 \name{pp_estimate}
 \alias{pp_estimate}
-\title{Population Down-scaling}
+\title{Population Down-Scaling}
 \usage{
-pp_estimate(source, target, sourcepop, sourcecode, volume = NULL)
+pp_estimate(
+  source,
+  target,
+  sourcepop,
+  sourcecode,
+  volume = NULL,
+  point = FALSE
+)
 }
 \arguments{
 \item{source}{object of class \code{sf}}
 
 \item{target}{object of class \code{sf}}
 
-\item{sourcepop}{string of source pop column}
+\item{sourcepop}{source zone population field}
 
-\item{sourcecode}{string of source id column}
+\item{sourcecode}{source zone id field}
 
-\item{volume}{string of target floor/height column}
+\item{volume}{source zone number of floors or height field}
+
+\item{point}{logical - whether to use point geometries or not}
 }
 \value{
-an object of class \code{sf} including population counts
+an object of class \code{sf} including population values
 }
 \description{
-Population Down-scaling
+Population Down-Scaling
 }
 \examples{
     library(populR)
-    data("target")
-    data("source")
 
-    # areametric
-    pop_aw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-        sourcecode = 'sid')
+    data('source')
+    data('target')
 
-    #volumetric
-    pop_vw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-        sourcecode = 'sid', volume = 'floors')
+    # using area
+    pp_estimate(source = source, target = target, sourcepop = pop,
+        sourcecode = sid)
 
-}
-\references{
-Lwin, K. K., & Murayama, Y. (2009)
-    \emph{A GIS approach to estimation of building population for micro-spatial analysis. Transactions in GIS, 13(4), 401–414.}
-    \doi{https://doi.org/10.1111/j.1467-9671.2009.01171.x}
+    # using volume
+    pp_estimate(source = source, target = target, sourcepop = pop,
+        sourcecode = sid, volume = floors)
+
+    # point geometries and area
+    pp_estimate(source = source, target = target, sourcepop = pop,
+        sourcecode = sid, point = TRUE)
+
+    # point geometries and volume
+    pp_estimate(source = source, target = target, sourcepop = pop,
+        sourcecode = sid, volume = floors, point = TRUE)
+
 }

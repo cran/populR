@@ -4,23 +4,23 @@
 \alias{pp_rmse}
 \title{RMS Error}
 \usage{
-pp_rmse(target, source, sourcecode, sourcepop, targetpop, title)
+pp_rmse(source, target, sourcecode, sourcepop, targetpop, title)
 }
 \arguments{
-\item{target}{target file in \code{sf} format}
+\item{source}{object of class \code{sf}}
 
-\item{source}{census source file in \code{sf} format}
+\item{target}{object of class \code{sf}}
 
-\item{sourcecode}{source id column \code{string}}
+\item{sourcecode}{source zone id field}
 
-\item{sourcepop}{source population column name \code{string}}
+\item{sourcepop}{source zone population field}
 
-\item{targetpop}{target estimated pop column name \code{string}}
+\item{targetpop}{target zone population field}
 
-\item{title}{title of scatterplot \code{string}}
+\item{title}{scatterplot title \code{string}}
 }
 \value{
-rms error, correlation, lm line and scatterplot
+a list including rms error, linear model details and correlation coefficient
 }
 \description{
 This function calculates the rmse between the source and target counts

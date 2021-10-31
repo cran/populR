@@ -12,30 +12,68 @@
 #' @return an object of class \code{sf} including rounded population counts
 #' @export
 #'
+#' @importFrom rlang quo_name
+#' @importFrom rlang enquo
 #'
 #' @examples
 #'     library(populR)
+#'
 #'     data("target")
 #'     data("source")
 #'
 #'     # areametric
 #'     pop_aw <- pp_estimate(source = source, target = target,
-#'         sourcepop = "pop", sourcecode = "sid")
+#'         sourcepop = pop, sourcecode = sid)
 #'
 #'     # areametric round
-#'     round_aw <- pp_round(target = pop_aw, targetpop = "pp_est",
-#'         sourcepop = "pop", sourcecode = "sid")
+#'     round_aw <- pp_round(target = pop_aw, targetpop = pp_est,
+#'         sourcepop = pop, sourcecode = sid)
 #'
 #'     # volumetric
 #'     pop_vw <- pp_estimate(source = source, target = target,
-#'     sourcepop = "pop", sourcecode = "sid", volume = "floors")
+#'     sourcepop = pop, sourcecode = sid, volume = floors)
 #'
 #'     # volumetric round
-#'     round_vw <- pp_round(target = pop_vw, targetpop = "pp_est",
-#'         sourcepop = "pop", sourcecode = "sid")
+#'     round_vw <- pp_round(target = pop_vw, targetpop = pp_est,
+#'         sourcepop = "pop", sourcecode = sid)
 #'
 #'
 pp_round <- function (target, targetpop, sourcepop, sourcecode) {
+
+  #check arguments
+  if (missing(target)) {
+    stop('target is required')
+  }
+
+  if (missing(targetpop)) {
+    stop('targetpop is required')
+  }
+
+  if (missing(sourcepop)) {
+    stop('sourcepop is required')
+  }
+
+  if (missing(sourcecode)) {
+    stop('sourcecode is required')
+  }
+
+  # check whether colnames exist
+  sourcepop <- rlang::quo_name(rlang::enquo(sourcepop))
+  sourcecode <- rlang::quo_name(rlang::enquo(sourcecode))
+  targetpop <- rlang::quo_name(rlang::enquo(targetpop))
+
+  if (!sourcepop %in% colnames(target)) {
+    stop(sprintf('%s cannot be found in the given target object', sourcepop))
+  }
+
+  if (!sourcecode %in% colnames(target)) {
+    stop(sprintf('%s cannot be found in the given target object', sourcecode))
+  }
+
+  if (!targetpop %in% colnames(target)) {
+    stop(sprintf('%s cannot be found in the given target object', targetpop))
+  }
+
   cd <- unique(target[, sourcecode, drop = T])
   target$newid <- 1:nrow(target)
   target <- target[order(target$newid), ]
@@ -70,5 +108,9 @@ pp_round <- function (target, targetpop, sourcepop, sourcecode) {
       target$pp_int[target$newid == bd$newid[i]] <- bd$pp_int[i]
     }
   }
+
+  target$newid <- NULL
+  target$diaf <- NULL
+
   return(target)
 }

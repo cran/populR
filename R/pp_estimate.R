@@ -1,47 +1,110 @@
-#' Population Down-scaling
+#' Population Down-Scaling
 #'
 #' @param source object of class \code{sf}
 #' @param target object of class \code{sf}
-#' @param sourcepop string of source pop column
-#' @param sourcecode string of source id column
-#' @param volume string of target floor/height column
+#' @param sourcepop source zone population field
+#' @param sourcecode source zone id field
+#' @param volume source zone number of floors or height field
+#' @param point logical - whether to use point geometries or not
 #'
-#' @return an object of class \code{sf} including population counts
+#' @return an object of class \code{sf} including population values
 #' @export
 #'
-#' @importFrom sf st_join
-#' @importFrom sf st_intersects
-#' @importFrom sf st_area
+#' @importFrom rlang quo_name
+#' @importFrom rlang enquo
+#' @importFrom sf st_crs
 #'
 #' @examples
 #'     library(populR)
-#'     data("target")
-#'     data("source")
 #'
-#'     # areametric
-#'     pop_aw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-#'         sourcecode = 'sid')
+#'     data('source')
+#'     data('target')
 #'
-#'     #volumetric
-#'     pop_vw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-#'         sourcecode = 'sid', volume = 'floors')
+#'     # using area
+#'     pp_estimate(source = source, target = target, sourcepop = pop,
+#'         sourcecode = sid)
 #'
-#' @references Lwin, K. K., & Murayama, Y. (2009)
-#'     \emph{A GIS approach to estimation of building population for micro-spatial analysis. Transactions in GIS, 13(4), 401–414.}
-#'     \doi{https://doi.org/10.1111/j.1467-9671.2009.01171.x}
+#'     # using volume
+#'     pp_estimate(source = source, target = target, sourcepop = pop,
+#'         sourcecode = sid, volume = floors)
 #'
+#'     # point geometries and area
+#'     pp_estimate(source = source, target = target, sourcepop = pop,
+#'         sourcecode = sid, point = TRUE)
 #'
-pp_estimate <- function(source, target, sourcepop, sourcecode, volume = NULL) {
-  target$pptid <- 1:nrow(target)
-  target$pparea <- as.vector(st_area(target))
-  join <- st_join(target, source, join = st_intersects, left = TRUE, largest = TRUE)
-  join$a <- 0
-  if (is.null(volume)) {
-    join$a <- join$pparea
-  } else {
-    join$a <- join$pparea * join[, volume, drop = T]
+#'     # point geometries and volume
+#'     pp_estimate(source = source, target = target, sourcepop = pop,
+#'         sourcecode = sid, volume = floors, point = TRUE)
+#'
+pp_estimate <- function(source, target, sourcepop, sourcecode, volume = NULL, point = FALSE) {
+
+  # check arguments
+  if (missing(source)) {
+    stop('source is reuired')
   }
-  join <- D(target = join, sourcecode = join[, sourcecode, drop = T], sourcepop = join[, sourcepop, drop = T], area = join[, 'a', drop = T])
-  join$pp_est <- join$a * join$D
-  return(join)
+
+  if (missing(target)) {
+    stop('target is reuired')
+  }
+
+  if (missing(sourcepop)) {
+    stop('sourcepop is reuired')
+  }
+
+  if (missing(sourcecode)) {
+    stop('sourcecode is reuired')
+  }
+
+  # check whether colnames exist
+  sourcepop <- rlang::quo_name(rlang::enquo(sourcepop))
+  sourcecode <- rlang::quo_name(rlang::enquo(sourcecode))
+  volume <- rlang::quo_name(rlang::enquo(volume))
+
+  if (!sourcepop %in% colnames(source)) {
+    stop(sprintf('%s cannot be found in the given source object', sourcepop))
+  }
+
+  if (!sourcecode %in% colnames(source)) {
+    stop(sprintf('%s cannot be found in the given source object', sourcecode))
+  }
+
+  if (volume != 'NULL') {
+    if (!volume %in% colnames(target)) {
+      stop(sprintf('%s cannot be found in the given target object', volume))
+    }
+  }
+  # check whether source and target are objects of sf class
+  source_sf <- 'sf' %in% class(source)
+  target_sf <- 'sf' %in% class(target)
+
+  if (source_sf != target_sf) {
+    stop('source and target must be objects of class sf')
+  }
+
+  # check whether source and targer share the same crs
+  source_crs <- sf::st_crs(source)
+  target_crs <- sf::st_crs(target)
+
+  if (source_crs != target_crs) {
+    stop('source and target dot not share the same crs')
+  }
+
+  # calculate livin space for target features using area or volume
+  if (volume == 'NULL') {
+    target <- pp_a(target = target)
+  } else {
+    target <- pp_a(target = target, volume = !!volume)
+  }
+
+  # density calculation either using points or not
+  if (point == FALSE) {
+    target <- pp_D(source = source, target = target, sourcecode = !!sourcecode, sourcepop = !!sourcepop, area = pp_a)
+  } else if (point == TRUE) {
+    target <- pp_D(source = source, target = target, sourcecode = !!sourcecode, sourcepop = !!sourcepop, area = pp_a, point = TRUE)
+  }
+
+  # population estimation
+  target <- pp_calc(target = target, a = pp_a, D = pp_D)
+
+  return(target)
 }

@@ -25,24 +25,25 @@ This function converts decimal population estimates produced by
 }
 \examples{
     library(populR)
+
     data("target")
     data("source")
 
     # areametric
     pop_aw <- pp_estimate(source = source, target = target,
-        sourcepop = "pop", sourcecode = "sid")
+        sourcepop = pop, sourcecode = sid)
 
     # areametric round
-    round_aw <- pp_round(target = pop_aw, targetpop = "pp_est",
-        sourcepop = "pop", sourcecode = "sid")
+    round_aw <- pp_round(target = pop_aw, targetpop = pp_est,
+        sourcepop = pop, sourcecode = sid)
 
     # volumetric
     pop_vw <- pp_estimate(source = source, target = target,
-    sourcepop = "pop", sourcecode = "sid", volume = "floors")
+    sourcepop = pop, sourcecode = sid, volume = floors)
 
     # volumetric round
-    round_vw <- pp_round(target = pop_vw, targetpop = "pp_est",
-        sourcepop = "pop", sourcecode = "sid")
+    round_vw <- pp_round(target = pop_vw, targetpop = pp_est,
+        sourcepop = "pop", sourcecode = sid)
 
 
 }
