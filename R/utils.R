@@ -1,0 +1,104 @@
+#' Internal Function - Areal Weighted Interpolation
+#'
+#' @param .target an object of class \code{sf}
+#' @param source an object of class \code{sf}
+#' @param sid source id
+#' @param spop source pop
+#' @param point whether to use point geometries
+#'
+#' @importFrom sf st_area
+#' @importFrom sf st_centroid
+#' @importFrom sf st_intersection
+#'
+#' @return an object of class \code{sf} including population estimates
+#'     using awi
+#' @noRd
+
+pp_awi <- function(.target, source, sid, spop, point = FALSE) {
+
+  .target$pp_a <- as.vector(sf::st_area(.target))
+
+  if (point) {
+    .target <- sf::st_centroid(.target)
+  }
+
+  # perform intersection
+  int <- sf::st_intersection(.target, source)
+
+  # create a new file to calc density
+  int$pp_D <- 0
+
+  # find unique ids
+  code <- unique(int[, sid, drop = TRUE])
+
+  # calc density for each source unit
+  for (i in 1:length(code)) {
+    s <- as.numeric(sum(int$pp_a[int[, sid, drop = TRUE] == code[i]]))
+    p <- as.numeric(unique(int[, spop, drop = T][int[, sid, drop = TRUE] == code[i]]))
+
+    if (s > 0) {
+      D <- p/s
+      int$pp_D[int[, sid, drop = TRUE] == code[i]] <- D
+    }
+  }
+
+  # calc target pop
+  int$pp_est <- int$pp_a * int$pp_D
+
+  return(int)
+}
+
+
+#' Internal Function - Volume Weighted Interpolation
+#'
+#' @param .target an object of class \code{sf}
+#' @param source an object of class \code{sf}
+#' @param sid source id
+#' @param spop source population
+#' @param volume target volume (height or number of floors)
+#' @param point whether to use point geometries
+#'
+#' @importFrom sf st_area
+#' @importFrom sf st_centroid
+#' @importFrom sf st_intersection
+#'
+#' @return an object of class \code{sf} including population estimates
+#'     using vwi
+#' @noRd
+#'
+pp_vwi <- function(.target, source, sid, spop, volume, point = FALSE) {
+
+  .target$pp_a <- as.vector(sf::st_area(.target)) * .target[, volume, drop = T]
+
+  if (point) {
+    .target <- sf::st_centroid(.target)
+  }
+
+  # perform intersection
+  int <- sf::st_intersection(.target, source)
+
+  # create a new file to calc density
+  int$pp_D <- 0
+
+  # find unique ids
+  code <- unique(int[, sid, drop = TRUE])
+
+  # calc density for each source unit
+  for (i in 1:length(code)) {
+    s <- as.numeric(sum(int$pp_a[int[, sid, drop = TRUE] == code[i]]))
+    p <- as.numeric(unique(int[, spop, drop = T][int[, sid, drop = TRUE] == code[i]]))
+
+    if (s > 0) {
+      D <- p/s
+      int$pp_D[int[, sid, drop = TRUE] == code[i]] <- D
+    }
+  }
+
+  # calc target pop
+  int$pp_est <- int$pp_a * int$pp_D
+
+  return(int)
+
+}
+
+

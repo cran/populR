@@ -4,46 +4,40 @@
 \alias{pp_round}
 \title{Rounding Function}
 \usage{
-pp_round(target, targetpop, sourcepop, sourcecode)
+pp_round(.target, tpop, spop, sid)
 }
 \arguments{
-\item{target}{object of class \code{sf}}
+\item{.target}{object of class \code{sf}}
 
-\item{targetpop}{string of target estimated pop column}
+\item{tpop}{target population}
 
-\item{sourcepop}{string of source pop column}
+\item{spop}{source population}
 
-\item{sourcecode}{string of source id column}
+\item{sid}{source id}
 }
 \value{
 an object of class \code{sf} including rounded population counts
 }
 \description{
-This function converts decimal population estimates produced by
-    the \link[populR]{pp_estimate} approach into integer numbers that sum up
-    to the source zone population counts
+Rounding Function
 }
 \examples{
-    library(populR)
+# read lib data
+data('source')
+data('target')
 
-    data("target")
-    data("source")
+# areal weighted interpolation - awi
+awi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = awi)
 
-    # areametric
-    pop_aw <- pp_estimate(source = source, target = target,
-        sourcepop = pop, sourcecode = sid)
+# volume weighted interpolation - vwi
+vwi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = vwi, volume = floors)
 
-    # areametric round
-    round_aw <- pp_round(target = pop_aw, targetpop = pp_est,
-        sourcepop = pop, sourcecode = sid)
+# awi - round
+pp_round(awi, tpop = pp_est, spop = pop, sid = sid)
 
-    # volumetric
-    pop_vw <- pp_estimate(source = source, target = target,
-    sourcepop = pop, sourcecode = sid, volume = floors)
-
-    # volumetric round
-    round_vw <- pp_round(target = pop_vw, targetpop = pp_est,
-        sourcepop = "pop", sourcecode = sid)
-
+# vwi - round
+pp_round(vwi, tpop = pp_est, spop = pop, sid = sid)
 
 }

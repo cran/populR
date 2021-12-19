@@ -1,15 +1,13 @@
-#' RMS Error
+#' RMSE
 #'
-#' @description This function calculates the rmse between the source and target counts
-#'
-#' @param target object of class \code{sf}
-#' @param source object of class \code{sf}
-#' @param targetpop target zone population field
-#' @param sourcecode source zone id field
-#' @param sourcepop source zone population field
+#' @param .target an object of class \code{sf}
+#' @param source an object of class \code{sf}
+#' @param sid source id
+#' @param spop source population
+#' @param tpop target population
 #' @param title scatterplot title \code{string}
 #'
-#' @return a list including rms error, linear model details and correlation coefficient
+#' @return a list including rmse, mae, linear model details and correlation coefficient
 #' @export
 #'
 #' @importFrom graphics abline
@@ -18,49 +16,50 @@
 #' @importFrom stats lm
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
+#' @importFrom Metrics rmse
+#' @importFrom Metrics mae
 #'
 #' @examples
-#'     library(populR)
-#'     data("target")
-#'     data("source")
+#' # read lib data
+#' data('source')
+#' data('target')
 #'
-#'     # areametric
-#'     pop_aw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-#'         sourcecode = 'sid')
+#' # areal weighted interpolation - awi
+#' awi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+#'     method = awi)
 #'
-#'     # areametric rmse
-#'     pp_rmse(target = pop_aw, source = source, sourcecode = 'sid',
-#'         sourcepop = 'pop', targetpop = 'pp_est', title = 'Areametric')
+#' # volume weighted interpolation - vwi
+#' vwi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+#'     method = vwi, volume = floors)
 #'
-#'     # volumetric
-#'     pop_vw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-#'         sourcecode = 'sid', volume = 'floors')
+#' # awi - rmse
+#' pp_rmse(awi, source = source, sid = sid, spop = pop, tpop = pp_est,
+#'     title ='awi')
 #'
-#'     # volumetric rmse
-#'     pp_rmse(target = pop_vw, source = source, sourcecode = 'sid',
-#'         sourcepop = 'pop', targetpop = 'pp_est', title = 'Volumetric')
+#' # vwi - rmse
+#' pp_rmse(vwi, source = source, sid = sid, spop = pop, tpop = pp_est,
+#'     title ='vwi')
 #'
-#'
-pp_rmse <- function(source, target, sourcecode, sourcepop, targetpop, title) {
+pp_rmse <- function(.target, source, sid, spop, tpop, title) {
   # check arguments
   if (missing(source)) {
     stop('source is required')
   }
 
-  if (missing(target)) {
+  if (missing(.target)) {
     stop('target is required')
   }
 
-  if (missing(sourcecode)) {
-    stop('sourcecode is required')
+  if (missing(sid)) {
+    stop('sid is required')
   }
 
-  if (missing(sourcepop)) {
-    stop('sourcepop is required')
+  if (missing(spop)) {
+    stop('spop is required')
   }
 
-  if (missing(targetpop)) {
-    stop('targetpop is required')
+  if (missing(tpop)) {
+    stop('tpop is required')
   }
 
   if (missing(title)) {
@@ -68,40 +67,52 @@ pp_rmse <- function(source, target, sourcecode, sourcepop, targetpop, title) {
   }
 
   # check whether column names exist
-  sourcepop <- rlang::quo_name(rlang::enquo(sourcepop))
-  sourcecode <- rlang::quo_name(rlang::enquo(sourcecode))
-  targetpop <- rlang::quo_name(rlang::enquo(targetpop))
+  spop <- rlang::quo_name(rlang::enquo(spop))
+  sid <- rlang::quo_name(rlang::enquo(sid))
+  tpop <- rlang::quo_name(rlang::enquo(tpop))
+  title <- rlang::quo_name(rlang::enquo(title))
 
-  if (!sourcepop %in% colnames(source)) {
-    stop(sprintf('%s cannot be found in the given source object', sourcepop))
+  if (!spop %in% colnames(source)) {
+    stop(sprintf('%s cannot be found in the given source object', spop))
   }
 
-  if (!sourcecode %in% colnames(source)) {
-    stop(sprintf('%s cannot be found in the given source object', sourcecode))
+  if (!sid %in% colnames(source)) {
+    stop(sprintf('%s cannot be found in the given source object', sid))
   }
 
-  if (!targetpop %in% colnames(target)) {
-    stop(sprintf('%s cannot be found in the given target object', targetpop))
+  if (!tpop %in% colnames(.target)) {
+    stop(sprintf('%s cannot be found in the given target object', tpop))
   }
 
-  df <- source[, c(sourcecode, sourcepop), drop = T]
-  df[, targetpop] <- 0
+  # check whether spop and tpop are numeric
+  if (!is.numeric(source[, spop, drop = TRUE])) {
+    stop('spop must be numeric')
+  }
+
+  if (!is.numeric(.target[, tpop, drop = TRUE])) {
+    stop('tpop must be numeric')
+  }
+
+  df <- source[, c(sid, spop), drop = TRUE]
+  df[, tpop] <- 0
 
   # sumup target pop for each source zone feature
   for (i in 1:nrow(df)) {
-    df[,targetpop][i] <- sum(target[, targetpop, drop = T][target[, sourcecode, drop = T] == df[, sourcecode][i]])
+    df[,tpop][i] <- sum(.target[, tpop, drop = TRUE][.target[, sid, drop = TRUE] == df[, sid][i]])
   }
 
   # calculate rmse, calculate correlation coefficient and create linear regression model
-  rmse <- sqrt(mean((df[, targetpop] - df[, sourcepop])^2))
-  linear_model <- lm(df[, sourcepop] ~ df[, targetpop])
-  correlation_coef <- round(cor(df[, sourcepop], df[, targetpop]), 5)
-  myList <- list(rmse = rmse, linear_model = linear_model, correlation_coef = correlation_coef)
+  rmse <- rmse(df[, tpop], df[, spop])
+  mae <- mae(df[, tpop], df[, spop])
+  linear_model <- lm(df[, tpop] ~ df[, spop])
+  correlation_coef <- round(cor(df[, spop], df[, tpop]), 5)
+  myList <- list(rmse = rmse, mae = mae, linear_model = linear_model, correlation_coef = correlation_coef)
 
   # scatterplot with line and correlation coeficient as text
-  plot(df[, sourcepop], df[, targetpop], col="#634B56", main = title, xlab = "Observed", ylab = "Predicted")
+  plot(df[, spop], df[, tpop], col="#634B56", main = title, xlab = "Observed", ylab = "Estimated")
   abline(linear_model, col="#FD8D3C")
-  text(x = min(df[, sourcepop]) + 40, y = max(df[, targetpop]) - 20, label = paste0("r^2 = ", correlation_coef))
+  text(x = min(df[, spop]) + 40, y = max(df[, tpop]) - 20, label = paste0("r^2 = ", correlation_coef))
 
   return(myList)
+
 }

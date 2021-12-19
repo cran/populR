@@ -2,56 +2,54 @@
 % Please edit documentation in R/pp_estimate.R
 \name{pp_estimate}
 \alias{pp_estimate}
-\title{Population Down-Scaling}
+\title{Residential Population Down-Scaling}
 \usage{
-pp_estimate(
-  source,
-  target,
-  sourcepop,
-  sourcecode,
-  volume = NULL,
-  point = FALSE
-)
+pp_estimate(.target, source, sid, spop, volume = NULL, point = FALSE, method)
 }
 \arguments{
-\item{source}{object of class \code{sf}}
+\item{.target}{an object of class \code{sf} representing individual
+building polygons}
 
-\item{target}{object of class \code{sf}}
+\item{source}{an object of class \code{sf} representing coarse polygon
+features (such as census tracts or city blocks) including
+population counts}
 
-\item{sourcepop}{source zone population field}
+\item{sid}{source id}
 
-\item{sourcecode}{source zone id field}
+\item{spop}{source population}
 
-\item{volume}{source zone number of floors or height field}
+\item{volume}{target volume (height or number of floors)}
 
-\item{point}{logical - whether to use point geometries or not}
+\item{point}{whether to use point geometries (TRUE/FALSE)}
+
+\item{method}{available methods: awi, vwi}
 }
 \value{
-an object of class \code{sf} including population values
+and object of class \code{sf} including estimated population counts
+    for target zone features using either awi or vwi methods
 }
 \description{
-Population Down-Scaling
+Residential Population Down-Scaling
 }
 \examples{
-    library(populR)
+# read lib data
+data('source')
+data('target')
 
-    data('source')
-    data('target')
+# areal weighted interpolation - awi
+pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = awi)
 
-    # using area
-    pp_estimate(source = source, target = target, sourcepop = pop,
-        sourcecode = sid)
+# areal weighted interpolation - awi using point geometries
+pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = awi, point = TRUE)
 
-    # using volume
-    pp_estimate(source = source, target = target, sourcepop = pop,
-        sourcecode = sid, volume = floors)
+# volume weighted interpolation - vwi
+pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = vwi, volume = floors)
 
-    # point geometries and area
-    pp_estimate(source = source, target = target, sourcepop = pop,
-        sourcecode = sid, point = TRUE)
-
-    # point geometries and volume
-    pp_estimate(source = source, target = target, sourcepop = pop,
-        sourcecode = sid, volume = floors, point = TRUE)
+# volume weighted interpolation - vwi using point geometries
+pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = vwi, volume = floors, point = TRUE)
 
 }

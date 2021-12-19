@@ -2,49 +2,48 @@
 % Please edit documentation in R/pp_rmse.R
 \name{pp_rmse}
 \alias{pp_rmse}
-\title{RMS Error}
+\title{RMSE}
 \usage{
-pp_rmse(source, target, sourcecode, sourcepop, targetpop, title)
+pp_rmse(.target, source, sid, spop, tpop, title)
 }
 \arguments{
-\item{source}{object of class \code{sf}}
+\item{.target}{an object of class \code{sf}}
 
-\item{target}{object of class \code{sf}}
+\item{source}{an object of class \code{sf}}
 
-\item{sourcecode}{source zone id field}
+\item{sid}{source id}
 
-\item{sourcepop}{source zone population field}
+\item{spop}{source population}
 
-\item{targetpop}{target zone population field}
+\item{tpop}{target population}
 
 \item{title}{scatterplot title \code{string}}
 }
 \value{
-a list including rms error, linear model details and correlation coefficient
+a list including rmse, mae, linear model details and correlation coefficient
 }
 \description{
-This function calculates the rmse between the source and target counts
+RMSE
 }
 \examples{
-    library(populR)
-    data("target")
-    data("source")
+# read lib data
+data('source')
+data('target')
 
-    # areametric
-    pop_aw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-        sourcecode = 'sid')
+# areal weighted interpolation - awi
+awi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = awi)
 
-    # areametric rmse
-    pp_rmse(target = pop_aw, source = source, sourcecode = 'sid',
-        sourcepop = 'pop', targetpop = 'pp_est', title = 'Areametric')
+# volume weighted interpolation - vwi
+vwi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+    method = vwi, volume = floors)
 
-    # volumetric
-    pop_vw <- pp_estimate(source = source, target = target, sourcepop = 'pop',
-        sourcecode = 'sid', volume = 'floors')
+# awi - rmse
+pp_rmse(awi, source = source, sid = sid, spop = pop, tpop = pp_est,
+    title ='awi')
 
-    # volumetric rmse
-    pp_rmse(target = pop_vw, source = source, sourcecode = 'sid',
-        sourcepop = 'pop', targetpop = 'pp_est', title = 'Volumetric')
-
+# vwi - rmse
+pp_rmse(vwi, source = source, sid = sid, spop = pop, tpop = pp_est,
+    title ='vwi')
 
 }
