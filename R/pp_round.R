@@ -1,6 +1,8 @@
 #' Rounding Function
 #'
-#' @param .target object of class \code{sf}
+#' @param .target object of class \code{sf} obtained by the
+#'     \link[populR]{pp_estimate} function and includes population
+#'     estimates
 #' @param tpop target population
 #' @param spop source population
 #' @param sid source id

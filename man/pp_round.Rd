@@ -7,7 +7,9 @@
 pp_round(.target, tpop, spop, sid)
 }
 \arguments{
-\item{.target}{object of class \code{sf}}
+\item{.target}{object of class \code{sf} obtained by the
+\link[populR]{pp_estimate} function and includes population
+estimates}
 
 \item{tpop}{target population}
 

@@ -25,25 +25,23 @@ pp_awi <- function(.target, source, sid, spop, point = FALSE) {
   # perform intersection
   int <- sf::st_intersection(.target, source)
 
-  # create a new file to calc density
-  int$pp_D <- 0
+  # create wights field
+  int$pp_w <- 0
 
   # find unique ids
   code <- unique(int[, sid, drop = TRUE])
 
-  # calc density for each source unit
+  # calc weights
   for (i in 1:length(code)) {
     s <- as.numeric(sum(int$pp_a[int[, sid, drop = TRUE] == code[i]]))
-    p <- as.numeric(unique(int[, spop, drop = T][int[, sid, drop = TRUE] == code[i]]))
 
     if (s > 0) {
-      D <- p/s
-      int$pp_D[int[, sid, drop = TRUE] == code[i]] <- D
+      int$pp_w[int[, sid, drop = TRUE] == code[i]] <- int$pp_a[int[, sid, drop = TRUE] == code[i]]/s
     }
   }
 
   # calc target pop
-  int$pp_est <- int$pp_a * int$pp_D
+  int$pp_est <- int[, spop, drop = TRUE] * int$pp_w
 
   return(int)
 }
@@ -78,7 +76,7 @@ pp_vwi <- function(.target, source, sid, spop, volume, point = FALSE) {
   int <- sf::st_intersection(.target, source)
 
   # create a new file to calc density
-  int$pp_D <- 0
+  int$pp_w <- 0
 
   # find unique ids
   code <- unique(int[, sid, drop = TRUE])
@@ -86,16 +84,14 @@ pp_vwi <- function(.target, source, sid, spop, volume, point = FALSE) {
   # calc density for each source unit
   for (i in 1:length(code)) {
     s <- as.numeric(sum(int$pp_a[int[, sid, drop = TRUE] == code[i]]))
-    p <- as.numeric(unique(int[, spop, drop = T][int[, sid, drop = TRUE] == code[i]]))
 
     if (s > 0) {
-      D <- p/s
-      int$pp_D[int[, sid, drop = TRUE] == code[i]] <- D
+      int$pp_w[int[, sid, drop = TRUE] == code[i]] <- int$pp_a[int[, sid, drop = TRUE] == code[i]]/s
     }
   }
 
   # calc target pop
-  int$pp_est <- int$pp_a * int$pp_D
+  int$pp_est <- int[, spop, drop = TRUE] * int$pp_w
 
   return(int)
 
