@@ -4,10 +4,10 @@
 \alias{pp_rmse}
 \title{RMSE}
 \usage{
-pp_rmse(.target, source, sid, spop, tpop, title)
+pp_rmse(target, source, sid, spop, tpop, title)
 }
 \arguments{
-\item{.target}{an object of class \code{sf}}
+\item{target}{an object of class \code{sf}}
 
 \item{source}{an object of class \code{sf}}
 
@@ -27,23 +27,23 @@ RMSE
 }
 \examples{
 # read lib data
-data('source')
+data('src')
 data('target')
 
-# areal weighted interpolation - awi
-awi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+# areal weighting interpolation - awi
+awi <- pp_estimate(trg, src, sid = sid, spop = pop,
     method = awi)
 
-# volume weighted interpolation - vwi
-vwi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+# volume weighting interpolation - vwi
+vwi <- pp_estimate(trg, src, sid = sid, spop = pop,
     method = vwi, volume = floors)
 
 # awi - rmse
-pp_rmse(awi, source = source, sid = sid, spop = pop, tpop = pp_est,
+pp_rmse(awi, src, sid = sid, spop = pop, tpop = pp_est,
     title ='awi')
 
 # vwi - rmse
-pp_rmse(vwi, source = source, sid = sid, spop = pop, tpop = pp_est,
+pp_rmse(vwi, src, sid = sid, spop = pop, tpop = pp_est,
     title ='vwi')
 
 }

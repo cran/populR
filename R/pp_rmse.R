@@ -1,6 +1,6 @@
 #' RMSE
 #'
-#' @param .target an object of class \code{sf}
+#' @param target an object of class \code{sf}
 #' @param source an object of class \code{sf}
 #' @param sid source id
 #' @param spop source population
@@ -10,6 +10,7 @@
 #' @return a list including rmse, mae, linear model details and correlation coefficient
 #' @export
 #'
+#' @importFrom sf st_as_sf
 #' @importFrom graphics abline
 #' @importFrom graphics text
 #' @importFrom stats cor
@@ -18,52 +19,53 @@
 #' @importFrom rlang enquo
 #' @importFrom Metrics rmse
 #' @importFrom Metrics mae
+#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data
-#' data('source')
+#' data('src')
 #' data('target')
 #'
-#' # areal weighted interpolation - awi
-#' awi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+#' # areal weighting interpolation - awi
+#' awi <- pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = awi)
 #'
-#' # volume weighted interpolation - vwi
-#' vwi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+#' # volume weighting interpolation - vwi
+#' vwi <- pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = vwi, volume = floors)
 #'
 #' # awi - rmse
-#' pp_rmse(awi, source = source, sid = sid, spop = pop, tpop = pp_est,
+#' pp_rmse(awi, src, sid = sid, spop = pop, tpop = pp_est,
 #'     title ='awi')
 #'
 #' # vwi - rmse
-#' pp_rmse(vwi, source = source, sid = sid, spop = pop, tpop = pp_est,
+#' pp_rmse(vwi, src, sid = sid, spop = pop, tpop = pp_est,
 #'     title ='vwi')
 #'
-pp_rmse <- function(.target, source, sid, spop, tpop, title) {
+pp_rmse <- function(target, source, sid, spop, tpop, title) {
   # check arguments
   if (missing(source)) {
-    stop('source is required')
+    usethis::ui_stop('source is required')
   }
 
-  if (missing(.target)) {
-    stop('target is required')
+  if (missing(target)) {
+    usethis::ui_stop('target is required')
   }
 
   if (missing(sid)) {
-    stop('sid is required')
+    usethis::ui_stop('sid is required')
   }
 
   if (missing(spop)) {
-    stop('spop is required')
+    usethis::ui_stop('spop is required')
   }
 
   if (missing(tpop)) {
-    stop('tpop is required')
+    usethis::ui_stop('tpop is required')
   }
 
   if (missing(title)) {
-    stop('title is required')
+    usethis::ui_stop('title is required')
   }
 
   # check whether column names exist
@@ -73,32 +75,35 @@ pp_rmse <- function(.target, source, sid, spop, tpop, title) {
   title <- rlang::quo_name(rlang::enquo(title))
 
   if (!spop %in% colnames(source)) {
-    stop(sprintf('%s cannot be found in the given source object', spop))
+    usethis::ui_stop('{spop} cannot be found in the given source object')
   }
 
   if (!sid %in% colnames(source)) {
-    stop(sprintf('%s cannot be found in the given source object', sid))
+    usethis::ui_stop('{sid} cannot be found in the given source object')
   }
 
-  if (!tpop %in% colnames(.target)) {
-    stop(sprintf('%s cannot be found in the given target object', tpop))
+  if (!tpop %in% colnames(target)) {
+    usethis::ui_stop('{tpop} cannot be found in the given target object')
   }
 
   # check whether spop and tpop are numeric
   if (!is.numeric(source[, spop, drop = TRUE])) {
-    stop('spop must be numeric')
+    usethis::ui_stop('{spop} must be numeric')
   }
 
-  if (!is.numeric(.target[, tpop, drop = TRUE])) {
-    stop('tpop must be numeric')
+  if (!is.numeric(target[, tpop, drop = TRUE])) {
+    usethis::ui_stop('{tpop} must be numeric')
   }
+
+  target <- st_as_sf(as.data.frame(target))
+  source <- st_as_sf(as.data.frame(source))
 
   df <- source[, c(sid, spop), drop = TRUE]
   df[, tpop] <- 0
 
   # sumup target pop for each source zone feature
   for (i in 1:nrow(df)) {
-    df[,tpop][i] <- sum(.target[, tpop, drop = TRUE][.target[, sid, drop = TRUE] == df[, sid][i]])
+    df[,tpop][i] <- sum(target[, tpop, drop = TRUE][target[, sid, drop = TRUE] == df[, sid][i]])
   }
 
   # calculate rmse, calculate correlation coefficient and create linear regression model

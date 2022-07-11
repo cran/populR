@@ -4,10 +4,10 @@
 \alias{pp_round}
 \title{Rounding Function}
 \usage{
-pp_round(.target, tpop, spop, sid)
+pp_round(target, tpop, spop, sid)
 }
 \arguments{
-\item{.target}{object of class \code{sf} obtained by the
+\item{target}{object of class \code{sf} obtained by the
 \link[populR]{pp_estimate} function and includes population
 estimates}
 
@@ -18,22 +18,23 @@ estimates}
 \item{sid}{source id}
 }
 \value{
-an object of class \code{sf} including rounded population counts
+an object of class \code{sf} including rounded population counts stored
+    in a new column called pp_int
 }
 \description{
 Rounding Function
 }
 \examples{
 # read lib data
-data('source')
-data('target')
+data('src')
+data('trg')
 
 # areal weighted interpolation - awi
-awi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+awi <- pp_estimate(trg, src, sid = sid, spop = pop,
     method = awi)
 
 # volume weighted interpolation - vwi
-vwi <- pp_estimate(target, source = source, sid = sid, spop = pop,
+vwi <- pp_estimate(trg, src, sid = sid, spop = pop,
     method = vwi, volume = floors)
 
 # awi - round

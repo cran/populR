@@ -1,4 +1,4 @@
-#' @title Target
+#' @title Target (trg)
 #' @docType data
 #' @description object of \code{sf} class representing the buildings of a fictional area
 #' @format object of \code{sf} class with 179 rows and 3 columns:
@@ -8,4 +8,4 @@
 #'   \item{\code{geometry}}{geometry}
 #'}
 #' @source \url{http://mbatsaris.gr/}
-"target"
+"trg"

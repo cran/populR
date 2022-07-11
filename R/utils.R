@@ -1,6 +1,6 @@
-#' Internal Function - Areal Weighted Interpolation
+#' Internal Function - Areal Weighting Interpolation
 #'
-#' @param .target an object of class \code{sf}
+#' @param target an object of class \code{sf}
 #' @param source an object of class \code{sf}
 #' @param sid source id
 #' @param spop source pop
@@ -13,17 +13,18 @@
 #' @return an object of class \code{sf} including population estimates
 #'     using awi
 #' @noRd
+#'
 
-pp_awi <- function(.target, source, sid, spop, point = FALSE) {
+pp_awi <- function(target, source, sid, spop, point = FALSE) {
 
-  .target$pp_a <- as.vector(sf::st_area(.target))
+  target$pp_a <- as.vector(sf::st_area(target))
 
   if (point) {
-    .target <- sf::st_centroid(.target)
+    target <- sf::st_centroid(target)
   }
 
   # perform intersection
-  int <- sf::st_intersection(.target, source)
+  int <- sf::st_intersection(target, source)
 
   # create wights field
   int$pp_w <- 0
@@ -47,9 +48,9 @@ pp_awi <- function(.target, source, sid, spop, point = FALSE) {
 }
 
 
-#' Internal Function - Volume Weighted Interpolation
+#' Internal Function - Volume Weighting Interpolation
 #'
-#' @param .target an object of class \code{sf}
+#' @param target an object of class \code{sf}
 #' @param source an object of class \code{sf}
 #' @param sid source id
 #' @param spop source population
@@ -64,16 +65,16 @@ pp_awi <- function(.target, source, sid, spop, point = FALSE) {
 #'     using vwi
 #' @noRd
 #'
-pp_vwi <- function(.target, source, sid, spop, volume, point = FALSE) {
+pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 
-  .target$pp_a <- as.vector(sf::st_area(.target)) * .target[, volume, drop = T]
+  target$pp_a <- as.vector(sf::st_area(target)) * target[, volume, drop = T]
 
   if (point) {
-    .target <- sf::st_centroid(.target)
+    target <- sf::st_centroid(target)
   }
 
   # perform intersection
-  int <- sf::st_intersection(.target, source)
+  int <- sf::st_intersection(target, source)
 
   # create a new file to calc density
   int$pp_w <- 0
@@ -96,5 +97,3 @@ pp_vwi <- function(.target, source, sid, spop, volume, point = FALSE) {
   return(int)
 
 }
-
-

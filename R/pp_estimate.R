@@ -1,6 +1,6 @@
-#' Residential Population Down-Scaling
+#' Areal Interpolation of Population Data
 #'
-#' @param .target an object of class \code{sf} representing individual
+#' @param target an object of class \code{sf} representing individual
 #'     building polygons
 #' @param source an object of class \code{sf} representing coarse polygon
 #'     features (such as census tracts or city blocks) including
@@ -11,55 +11,57 @@
 #' @param point whether to use point geometries (TRUE/FALSE)
 #' @param method available methods: awi, vwi
 #'
-#' @return and object of class \code{sf} including estimated population counts
-#'     for target zone features using either awi or vwi methods
+#' @return An object of class sf including estimated population
+#'     counts for target zone features using either awi or vwi methods. The estimated population
+#'     counts are stored in a new column called pp_est.
 #' @export
 #'
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
 #' @importFrom sf st_crs
+#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data
-#' data('source')
-#' data('target')
+#' data('src')
+#' data('trg')
 #'
 #' # areal weighted interpolation - awi
-#' pp_estimate(target, source = source, sid = sid, spop = pop,
+#' pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = awi)
 #'
 #' # areal weighted interpolation - awi using point geometries
-#' pp_estimate(target, source = source, sid = sid, spop = pop,
+#' pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = awi, point = TRUE)
 #'
 #' # volume weighted interpolation - vwi
-#' pp_estimate(target, source = source, sid = sid, spop = pop,
+#' pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = vwi, volume = floors)
 #'
 #' # volume weighted interpolation - vwi using point geometries
-#' pp_estimate(target, source = source, sid = sid, spop = pop,
+#' pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = vwi, volume = floors, point = TRUE)
 #'
-pp_estimate <- function(.target, source, sid, spop, volume = NULL, point = FALSE, method) {
+pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE, method) {
   # check arguments
-  if (missing(.target)) {
-    stop('target is required')
+  if (missing(target)) {
+    usethis::ui_stop('target is required')
   }
 
   if (missing(source)) {
-    stop('source is required')
+    usethis::ui_stop('source is required')
   }
 
   if (missing(sid)) {
-    stop('source id is required')
+    usethis::ui_stop('sid is required')
   }
 
   if (missing(spop)) {
-    stop('source population is required')
+    usethis::ui_stop('spop is required')
   }
 
   if (missing(method)) {
-    stop('method is required')
+    usethis::ui_stop('method is required')
   }
 
   # enquote args where necessary
@@ -69,73 +71,74 @@ pp_estimate <- function(.target, source, sid, spop, volume = NULL, point = FALSE
   method <- rlang::quo_name(rlang::enquo(method))
 
   # check whether source and .target are of sf class
-  tc <- 'sf' %in% class(.target)
-  sc <- 'sf' %in% class(source)
+  sc <- "sf" %in% class(source)
+  tc <- "sf" %in% class(target)
 
-  if (tc != sc) {
-    stop('source and target must be objects of sf class')
+  if (sc == FALSE) {
+    usethis::ui_stop("{source} must be an object of class sf")
+  }
+
+  if (tc == FALSE) {
+    usethis::ui_stop('{target} must be an object of class sf')
   }
 
   # check whether source and target share the same crs
-  t_crs <- sf::st_crs(.target)
-  s_crs <- sf::st_crs(source)
-
-  if (t_crs != s_crs) {
-    stop('CRS mismatch')
+  if (sf::st_crs(target) != sf::st_crs(source)) {
+    usethis::ui_stop('CRS mismatch')
   }
 
   # check whether params exist in the given source object
   if (!sid %in% colnames(source)) {
-    stop(sprintf('%s cannot be found in the given source object', sid))
+    usethis::ui_stop('{sid} cannot be found in the given source object')
   }
 
   if (!spop %in% colnames(source)) {
-    stop(sprintf('%s cannot be found in the given source object', spop))
+    usethis::ui_stop('{spop} cannot be found in the given source object')
   }
 
   # check whether method is valid
   m <- c('awi', 'vwi')
 
   if (!method %in% m) {
-    stop('please provide avalid method: awi, vwi')
+    usethis::ui_stop('{method} is not a valid method. Please choose between awi and vwi')
   }
 
   # check whether spop is numeric
   if (!is.numeric(source[, spop, drop = TRUE])) {
-    stop('source population must be numeric')
+    usethis::ui_stop('{spop} must be numeric')
   }
 
   # check whether point is logical
   if (!is.logical(point)) {
-    stop('point must be logical')
+    usethis::ui_stop('point must be either TRUE/T or FALSE/F')
   }
 
   # check whether sid and pop already exists in both target and source features
-  if (any(colnames(.target) == sid)) {
-    colnames(.target)[colnames(.target) == sid] <- 'target_id'
+  if (any(colnames(target) == sid)) {
+    colnames(target)[names(target) == sid] <- 'target_id'
   }
 
-  if (any(colnames(.target) == spop)) {
-    colnames(.target)[colnames(.target) == spop] <- 'target_pop'
+  if (any(colnames(target) == spop)) {
+    colnames(target)[names(target) == spop] <- 'target_pop'
   }
 
   if (method == 'awi') {
-    out <- pp_awi(.target, source = source, sid = sid, spop = spop,
+    out <- pp_awi(target, source = source, sid = sid, spop = spop,
                   point = point)
   } else if (method == 'vwi') {
     if (volume == 'NULL') {
-      stop('volume is required for vwi')
+      usethis::ui_stop('volume is required for vwi')
     }
 
-    if (!volume %in% colnames(.target)) {
-      stop(sprintf('%s cannot be found in the given target object', volume))
+    if (!volume %in% colnames(target)) {
+      usethis::ui_stop('{volume} cannot be found in the given target object')
     }
 
-    if (!is.numeric(.target[, volume, drop = TRUE])) {
-      stop('volume must be numeric')
+    if (!is.numeric(target[, volume, drop = TRUE])) {
+      usethis::ui_stop('{volume} must be numeric')
     }
 
-    out <- pp_vwi(.target, source = source, sid = sid, spop = spop,
+    out <- pp_vwi(target, source = source, sid = sid, spop = spop,
                   volume = volume, point = point)
   }
 

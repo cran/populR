@@ -2,12 +2,12 @@
 % Please edit documentation in R/pp_estimate.R
 \name{pp_estimate}
 \alias{pp_estimate}
-\title{Residential Population Down-Scaling}
+\title{Areal Interpolation of Population Data}
 \usage{
-pp_estimate(.target, source, sid, spop, volume = NULL, point = FALSE, method)
+pp_estimate(target, source, sid, spop, volume = NULL, point = FALSE, method)
 }
 \arguments{
-\item{.target}{an object of class \code{sf} representing individual
+\item{target}{an object of class \code{sf} representing individual
 building polygons}
 
 \item{source}{an object of class \code{sf} representing coarse polygon
@@ -25,31 +25,32 @@ population counts}
 \item{method}{available methods: awi, vwi}
 }
 \value{
-and object of class \code{sf} including estimated population counts
-    for target zone features using either awi or vwi methods
+An object of class sf including estimated population
+    counts for target zone features using either awi or vwi methods. The estimated population
+    counts are stored in a new column called pp_est.
 }
 \description{
-Residential Population Down-Scaling
+Areal Interpolation of Population Data
 }
 \examples{
 # read lib data
-data('source')
-data('target')
+data('src')
+data('trg')
 
 # areal weighted interpolation - awi
-pp_estimate(target, source = source, sid = sid, spop = pop,
+pp_estimate(trg, src, sid = sid, spop = pop,
     method = awi)
 
 # areal weighted interpolation - awi using point geometries
-pp_estimate(target, source = source, sid = sid, spop = pop,
+pp_estimate(trg, src, sid = sid, spop = pop,
     method = awi, point = TRUE)
 
 # volume weighted interpolation - vwi
-pp_estimate(target, source = source, sid = sid, spop = pop,
+pp_estimate(trg, src, sid = sid, spop = pop,
     method = vwi, volume = floors)
 
 # volume weighted interpolation - vwi using point geometries
-pp_estimate(target, source = source, sid = sid, spop = pop,
+pp_estimate(trg, src, sid = sid, spop = pop,
     method = vwi, volume = floors, point = TRUE)
 
 }
