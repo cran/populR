@@ -12,23 +12,11 @@
 
 <meta name="author" content="Marios Batsaris" />
 
-<meta name="date" content="2022-08-09" />
+<meta name="date" content="2023-01-11" />
 
 <title>Population Downscaling Using Areal Interpolation - A Comparative Analysis</title>
 
-<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
-// be compatible with the behavior of Pandoc < 2.8).
-document.addEventListener('DOMContentLoaded', function(e) {
-  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
-  var i, h, a;
-  for (i = 0; i < hs.length; i++) {
-    h = hs[i];
-    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
-    a = h.attributes;
-    while (a.length > 0) h.removeAttribute(a[0].name);
-  }
-});
-</script>
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -122,13 +110,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -140,187 +135,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -332,71 +147,24 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Population Downscaling Using Areal
-Interpolation - A Comparative Analysis</h1>
+<h1 class="title toc-ignore">Population Downscaling Using Areal Interpolation - A Comparative Analysis</h1>
 <h4 class="author">Marios Batsaris</h4>
-<h4 class="date">2022-08-09</h4>
+<h4 class="date">2023-01-11</h4>
 
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Areal Interpolation may be defined as the process of transforming
-data reported over a set of spatial units (source) to another (target).
-Its application to population data has attracted considerable attention
-during the last few decades. A massive amount of methods have been
-reported in the scientific literature. Most of them focus on the
-improvement of the accuracy by using more sophisticated techniques
-rather than developing standardized methods. As a result, only a few
-implementation tools exists within the R community.</p>
-<p>One of the most common, easy and straightforward methods of Areal
-Interpolation is Areal Weighting Interpolation (AWI). AWI
-proportionately interpolates the population values of the source
-features based on areal (or spatial) weights calculated by the area of
-intersection between the source and the target zones.</p>
-<p><a href="https://cran.r-project.org/package=sf/"><code>sf</code></a>
-and <a href="https://cran.r-project.org/package=areal/"><code>areal</code></a>
-packages provide Areal Interpolation functionality within the R
-ecosystem. Both packages implement (AWI). <code>sf</code> functionality
-comes up with extensive and intensive interpolation options and
-calculates the areal weights based on the total area of the source
-features (total weights). <code>sf</code> functionality is suitable for
-completely overlapping data. <code>areal</code> extends the existing
-functionality of the <code>sf</code> package by introducing an
-additional formula for data without complete overlap. In this case
-weights are calculated using the sum of the remaining source areas after
-the intersection (sum weights).</p>
-<p>When the case involves Areal Interpolation of urban population data
-(small scale applications) where the source features (such as city
-blocks or census tracts) are somehow larger than target features (such
-as buildings) in terms of footprint area the <code>sf</code>
-functionality (total weights) is unable to calculate areal weights
-properly and therefore, is not ideal for such applications.
-<code>areal</code> functionality may be confusing for novice R (or GIS)
-users as it is not obvious that the weight option should be set to
-<code>sum</code> to calculate areal weights correctly.</p>
-<p>To overcome these limitations <a href="https://cran.r-project.org/package=populR"><code>populR</code></a>
-is introduced. <code>populR</code> is suitable for Areal Interpolation
-of urban population and provides an AWI approach that matches the
-existing functionality of <code>areal</code> using
-<code>sum weights</code> and additionally, proposes a VWI approach
-which, to our knowledge, extends the existing Areal Interpolation
-functionality within the R ecosystem. VWI uses the area of intersection
-between source and target features multiplied by the building height or
-number of floors (volume) to guide the interpolation process.</p>
-<p>In this vignette a comparative analysis of Areal Interpolation
-alternatives within the programming environment of R is carried out.
-<code>sf</code>, <code>areal</code> and <code>populR</code> results are
-obtained and further compared to a more realistic population
-distribution.</p>
+<p>Areal Interpolation may be defined as the process of transforming data reported over a set of spatial units (source) to another (target). Its application to population data has attracted considerable attention during the last few decades. A massive amount of methods have been reported in the scientific literature. Most of them focus on the improvement of the accuracy by using more sophisticated techniques rather than developing standardized methods. As a result, only a few implementation tools exists within the R community.</p>
+<p>One of the most common, easy and straightforward methods of Areal Interpolation is Areal Weighting Interpolation (AWI). AWI proportionately interpolates the population values of the source features based on areal (or spatial) weights calculated by the area of intersection between the source and the target zones.</p>
+<p><a href="https://cran.r-project.org/package=sf/"><code>sf</code></a> and <a href="https://cran.r-project.org/package=areal/"><code>areal</code></a> packages provide Areal Interpolation functionality within the R ecosystem. Both packages implement (AWI). <code>sf</code> functionality comes up with extensive and intensive interpolation options and calculates the areal weights based on the total area of the source features (total weights). <code>sf</code> functionality is suitable for completely overlapping data. <code>areal</code> extends the existing functionality of the <code>sf</code> package by introducing an additional formula for data without complete overlap. In this case weights are calculated using the sum of the remaining source areas after the intersection (sum weights).</p>
+<p>When the case involves Areal Interpolation of urban population data (small scale applications) where the source features (such as city blocks or census tracts) are somehow larger than target features (such as buildings) in terms of footprint area the <code>sf</code> functionality (total weights) is unable to calculate areal weights properly and therefore, is not ideal for such applications. <code>areal</code> functionality may be confusing for novice R (or GIS) users as it is not obvious that the weight option should be set to <code>sum</code> to calculate areal weights correctly.</p>
+<p>To overcome these limitations <a href="https://cran.r-project.org/package=populR"><code>populR</code></a> is introduced. <code>populR</code> is suitable for Areal Interpolation of urban population and provides an AWI approach that matches the existing functionality of <code>areal</code> using <code>sum weights</code> and additionally, proposes a VWI approach which, to our knowledge, extends the existing Areal Interpolation functionality within the R ecosystem. VWI uses the area of intersection between source and target features multiplied by the building height or number of floors (volume) to guide the interpolation process.</p>
+<p>In this vignette a comparative analysis of Areal Interpolation alternatives within the programming environment of R is carried out. <code>sf</code>, <code>areal</code> and <code>populR</code> results are obtained and further compared to a more realistic population distribution.</p>
 </div>
 <div id="case-study" class="section level2">
 <h2>Case Study</h2>
-<p>A small part of the city of Mytilini, Lesvos, Greece was chosen as
-the case study (figure below).The study area consists of 9 city blocks
-(source) counting 911 residents and 179 buildings units (target)
-including floor number information. These data are included in
-<code>populR</code> package for further experimentation.</p>
+<p>A small part of the city of Mytilini, Lesvos, Greece was chosen as the case study (figure below).The study area consists of 9 city blocks (source) counting 911 residents and 179 buildings units (target) including floor number information. These data are included in <code>populR</code> package for further experimentation.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># attach library</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(populR)</span>
@@ -415,67 +183,42 @@ including floor number information. These data are included in
 </div>
 <div id="implementation" class="section level2">
 <h2>Implementation</h2>
-<p>In this section a demonstration of the <code>sf</code>,
-<code>areal</code> and <code>populR</code> packages takes place. First,
-the packages are attached to the script and next <code>populR</code>
-built-in data are loaded. Then, Areal Interpolation functions are
-executed for each one of the aforementioned packages.</p>
-<p>The <code>st_interpolate_aw()</code> function of the <code>sf</code>
-package takes:</p>
+<p>In this section a demonstration of the <code>sf</code>, <code>areal</code> and <code>populR</code> packages takes place. First, the packages are attached to the script and next <code>populR</code> built-in data are loaded. Then, Areal Interpolation functions are executed for each one of the aforementioned packages.</p>
+<p>The <code>st_interpolate_aw()</code> function of the <code>sf</code> package takes:</p>
 <ol style="list-style-type: decimal">
-<li><code>x</code>: an object of class <code>sf</code> with data to be
-interpolated</li>
+<li><code>x</code>: an object of class <code>sf</code> with data to be interpolated</li>
 <li><code>to</code>: the target geometries (sf object)</li>
-<li><code>extensive</code>: whether to use extensive (TRUE) or intensive
-interpolation (FALSE)</li>
+<li><code>extensive</code>: whether to use extensive (TRUE) or intensive interpolation (FALSE)</li>
 </ol>
-<p><code>areal</code> provides the <code>aw_interpolate()</code>
-function which requires:</p>
+<p><code>areal</code> provides the <code>aw_interpolate()</code> function which requires:</p>
 <ol style="list-style-type: decimal">
 <li><code>data</code>: an sf object to be used as target</li>
 <li><code>tid</code>: target identification numbers</li>
 <li><code>source</code>: an sf object with data to be interpolated</li>
 <li><code>sid</code>: source identification numbers</li>
-<li><code>weight</code>: may be either <code>sum</code> or
-<code>total</code> for extensive interpolation and <code>sum</code>
-intensive interpolation</li>
-<li><code>output</code>: whether <code>sf</code> object or
-<code>tibble</code></li>
-<li><code>extensive</code>: a vector of quoted (extensive) variable
-names - optional if intensive is specified</li>
-<li><code>intensive</code>: a vector of quoted (intensive) variable
-names - optional if extensive is specified</li>
+<li><code>weight</code>: may be either <code>sum</code> or <code>total</code> for extensive interpolation and <code>sum</code> intensive interpolation</li>
+<li><code>output</code>: whether <code>sf</code> object or <code>tibble</code></li>
+<li><code>extensive</code>: a vector of quoted (extensive) variable names - optional if intensive is specified</li>
+<li><code>intensive</code>: a vector of quoted (intensive) variable names - optional if extensive is specified</li>
 </ol>
-<p>Finally, <code>populR</code> offers <code>pp_estimate()</code>
-function which takes:</p>
+<p>Finally, <code>populR</code> offers <code>pp_estimate()</code> function which takes:</p>
 <ol style="list-style-type: decimal">
 <li><code>target</code>: an sf object to be used as target</li>
 <li><code>source</code>: an sf object with data to be interpolated</li>
 <li><code>sid</code>: source identification number</li>
 <li><code>spop</code>: source population values to be interpolated</li>
-<li><code>volume</code>: target volume information (number of floors or
-height) - required for the vwi approach</li>
-<li><code>point</code>: whether to return point geometries (TRUE) or not
-(FALSE) - optional</li>
+<li><code>volume</code>: target volume information (number of floors or height) - required for the vwi approach</li>
+<li><code>point</code>: whether to return point geometries (TRUE) or not (FALSE) - optional</li>
 <li><code>method</code>: whether to use awi or vwi</li>
 </ol>
-<p>Evidently, <code>sf</code> package’s <code>st_interpolate_aw</code>
-function requires only 3 arguments which make it very easy to implement
-while <code>populR</code> requires at least 5 and <code>areal</code> at
-least 7 arguments which potentially increases the implementation
-complexity.</p>
-<p>On the other hand, only <code>areal</code> may be used for multiple
-interpolations at once as the <code>extensive</code> or
-<code>intensive</code> argument takes a vector of quoted values (not
-included in this vignette).</p>
+<p>Evidently, <code>sf</code> package’s <code>st_interpolate_aw</code> function requires only 3 arguments which make it very easy to implement while <code>populR</code> requires at least 5 and <code>areal</code> at least 7 arguments which potentially increases the implementation complexity.</p>
+<p>On the other hand, only <code>areal</code> may be used for multiple interpolations at once as the <code>extensive</code> or <code>intensive</code> argument takes a vector of quoted values (not included in this vignette).</p>
 <p>For the reader’s convenience names were shortened as follows:</p>
 <ul>
 <li><code>awi</code>: populR awi approach</li>
 <li><code>vwi</code>: populR vwi approach</li>
-<li><code>aws</code>: areal using extensive interpolation and sum
-weights</li>
-<li><code>awt</code>: areal using extensive interpolation and total
-weights</li>
+<li><code>aws</code>: areal using extensive interpolation and sum weights</li>
+<li><code>awt</code>: areal using extensive interpolation and total weights</li>
 <li><code>sf</code>: sf using extensive interpolation</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -510,13 +253,7 @@ weights</li>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
-<p>The study area counts 911 residents as already mentioned in previous
-section. From the code chunk below it is clear that <code>awi</code>,
-<code>vwi</code> and <code>aws</code> correctly estimated population
-values as they sum to 911 while <code>awt</code> and <code>sf</code>
-results underestimated values. This is expected as both methods use the
-total area of the source features during the interpolation process and
-are useful when source and target features completely overlap.</p>
+<p>The study area counts 911 residents as already mentioned in previous section. From the code chunk below it is clear that <code>awi</code>, <code>vwi</code> and <code>aws</code> correctly estimated population values as they sum to 911 while <code>awt</code> and <code>sf</code> results underestimated values. This is expected as both methods use the total area of the source features during the interpolation process and are useful when source and target features completely overlap.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># sum initial values</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(source<span class="sc">$</span>pop)</span>
@@ -541,9 +278,7 @@ are useful when source and target features completely overlap.</p>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># sf</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(sf<span class="sc">$</span>pop)</span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 412.1597</span></span></code></pre></div>
-<p>Moreover, identical results were obtained by the <code>awi</code> and
-<code>aws</code> approaches and somehow different results by the
-<code>vwi</code> as shown in the code block below.</p>
+<p>Moreover, identical results were obtained by the <code>awi</code> and <code>aws</code> approaches and somehow different results by the <code>vwi</code> as shown in the code block below.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># order values using tid</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>awi <span class="ot">&lt;-</span> awi[<span class="fu">order</span>(awi<span class="sc">$</span>tid),]</span>
@@ -585,12 +320,8 @@ are useful when source and target features completely overlap.</p>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20  8.8823230  5.1978924  5.1978924 1.7522985 1.7522985</span></span></code></pre></div>
 <div id="comparison-to-reference-data" class="section level3">
 <h3>Comparison to Reference Data</h3>
-<p>Due to confidentiality concerns, population data at building level
-are not available in Greece. Therefore, an alternate population
-distribution previously published in <a href="https://doi.org/10.4018/ijagr.2019100103">Batsaris et al. 2019</a>
-was used as reference data set to compare the results.</p>
-<p>This reference population values are included in the built-in data
-set as shown below in the field <code>rf</code>.</p>
+<p>Due to confidentiality concerns, population data at building level are not available in Greece. Therefore, an alternate population distribution previously published in <a href="https://doi.org/10.4018/ijagr.2019100103">Batsaris et al. 2019</a> was used as reference data set to compare the results.</p>
+<p>This reference population values are included in the built-in data set as shown below in the field <code>rf</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>target</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 179 features and 3 fields</span></span>
@@ -610,8 +341,7 @@ set as shown below in the field <code>rf</code>.</p>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8    8      2  1.5688688 POLYGON ((720492.9 4330318,...</span></span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9    9      3  3.7516581 POLYGON ((720512.4 4330375,...</span></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10  10      3  5.0314551 POLYGON ((720439.2 4330375,...</span></span></code></pre></div>
-<p>In the code chunk below the first 20 features are presented for
-comparison.</p>
+<p>In the code chunk below the first 20 features are presented for comparison.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>rf <span class="ot">&lt;-</span> awi<span class="sc">$</span>rf</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">cbind</span>(rf, df)</span>
@@ -638,17 +368,8 @@ comparison.</p>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18  5.9919531  5.1720468  8.8510686  8.8510686 4.0977230 4.0977230</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19  1.8196405  1.5706508  5.3757975  5.3757975 2.4887988 2.4887988</span></span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20  9.2134815  8.8823230  5.1978924  5.1978924 1.7522985 1.7522985</span></span></code></pre></div>
-<p><code>populR</code> provides a function (<code>pp_compare()</code>)
-to compare the results with alternate population data.
-<code>pp_compare()</code> produces scatter diagram, linear regression
-model, correlation coeficient (<span class="math inline">\(R^2\)</span>), MAE (Mean Absolute Error) and RMSE
-(Root Mean Squared Error) to investigate the relationship of the results
-with the reference (or other) data.</p>
-<p>Generally, the diagrams suggest strong and positive relationships in
-all cases. However, <code>vwi</code> provides the strongest relationship
-and <span class="math inline">\(R^2\)</span> coefficient.
-<code>vwi</code> provides the smallest MAE value in comparison with the
-other methods as shown below.</p>
+<p><code>populR</code> provides a function (<code>pp_compare()</code>) to compare the results with alternate population data. <code>pp_compare()</code> produces scatter diagram, linear regression model, correlation coeficient (<span class="math inline">\(R^2\)</span>), MAE (Mean Absolute Error) and RMSE (Root Mean Squared Error) to investigate the relationship of the results with the reference (or other) data.</p>
+<p>Generally, the diagrams suggest strong and positive relationships in all cases. However, <code>vwi</code> provides the strongest relationship and <span class="math inline">\(R^2\)</span> coefficient. <code>vwi</code> provides the smallest MAE value in comparison with the other methods as shown below.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>awi_error <span class="ot">&lt;-</span> <span class="fu">pp_compare</span>(df, <span class="at">estimated =</span> awi, <span class="at">actual =</span> rf, <span class="at">title =</span> <span class="st">&quot;awi vs actual&quot;</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
@@ -759,70 +480,45 @@ other methods as shown below.</p>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $correlation_coef</span></span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.8215</span></span></code></pre></div>
-<p>RMSE (Root Mean Squared Error) is also calculated. Again,
-<code>vwi</code> provides the smallest error value as shown in the code
-block below.</p>
+<p>RMSE (Root Mean Squared Error) is also calculated. Again, <code>vwi</code> provides the smallest error value as shown in the code block below.</p>
 </div>
 </div>
 <div id="comparison-on-performance" class="section level2">
 <h2>Comparison on Performance</h2>
-<p>Finally, a performance comparison (execution times) is carried out in
-this section using <a href="https://cran.r-project.org/package=microbenchmark/">microbenchmark</a>
-package. Execution time measurements suggest that <code>populR</code>
-functionality executed much faster than <code>areal</code> and
-<code>sf</code> as shown below. Both <code>awi</code> and
-<code>vwi</code> achieved the best mean execution time (about 76.74
-milliseconds). <code>aws</code> follows with 136.67 milliseconds and
-finally, <code>awt</code> with 180.53 milliseconds.</p>
+<p>Finally, a performance comparison (execution times) is carried out in this section using <a href="https://cran.r-project.org/package=microbenchmark/">microbenchmark</a> package. Execution time measurements suggest that <code>populR</code> functionality executed much faster than <code>areal</code> and <code>sf</code> as shown below. Both <code>awi</code> and <code>vwi</code> achieved the best mean execution time (about 76.74 milliseconds). <code>aws</code> follows with 136.67 milliseconds and finally, <code>awt</code> with 180.53 milliseconds.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;microbenchmark&#39; was built under R version 4.1.3</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># performance comparison</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressWarnings</span>(<span class="fu">pp_estimate</span>(<span class="at">target =</span> target, <span class="at">source =</span> source, <span class="at">spop =</span> pop, <span class="at">sid =</span> sid, </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">method =</span> awi)),</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressWarnings</span>(<span class="fu">pp_estimate</span>(<span class="at">target =</span> target, <span class="at">source =</span> source, <span class="at">spop =</span> pop, <span class="at">sid =</span> sid, </span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">volume =</span> floors, <span class="at">method =</span> vwi)),</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aw_interpolate</span>(target, <span class="at">tid =</span> tid, <span class="at">source =</span> source, <span class="at">sid =</span> <span class="st">&#39;sid&#39;</span>, </span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">weight =</span> <span class="st">&#39;sum&#39;</span>, <span class="at">output =</span> <span class="st">&#39;sf&#39;</span>, <span class="at">extensive =</span> <span class="st">&#39;pop&#39;</span>),</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aw_interpolate</span>(target, <span class="at">tid =</span> tid, <span class="at">source =</span> source, <span class="at">sid =</span> <span class="st">&#39;sid&#39;</span>, </span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                      <span class="at">weight =</span> <span class="st">&#39;total&#39;</span>, <span class="at">output =</span> <span class="st">&#39;sf&#39;</span>, <span class="at">extensive =</span> <span class="st">&#39;pop&#39;</span>),</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressWarnings</span>(<span class="fu">st_interpolate_aw</span>(source[<span class="st">&#39;pop&#39;</span>], target, <span class="at">extensive =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Unit: milliseconds</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                                                                        expr</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   suppressWarnings(pp_estimate(target = target, source = source,      spop = pop, sid = sid, method = awi))</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  suppressWarnings(pp_estimate(target = target, source = source,      spop = pop, sid = sid, volume = floors, method = vwi))</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      aw_interpolate(target, tid = tid, source = source, sid = &quot;sid&quot;,      weight = &quot;sum&quot;, output = &quot;sf&quot;, extensive = &quot;pop&quot;)</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    aw_interpolate(target, tid = tid, source = source, sid = &quot;sid&quot;,      weight = &quot;total&quot;, output = &quot;sf&quot;, extensive = &quot;pop&quot;)</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                suppressWarnings(st_interpolate_aw(source[&quot;pop&quot;], target, extensive = TRUE))</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       min        lq      mean   median        uq      max neval</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   71.7053  72.80210  75.15038  73.5686  77.29545  84.6436   100</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   72.0135  72.78705  75.44242  73.8512  76.75860 124.9136   100</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  124.5888 126.82265 130.29592 128.9688 131.99280 180.1855   100</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  166.6036 169.89750 173.48675 172.6257 174.80065 189.4912   100</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  131.8874 134.94315 138.33501 137.7540 139.98630 152.7998   100</span></span></code></pre></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># performance comparison</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressWarnings</span>(<span class="fu">pp_estimate</span>(<span class="at">target =</span> target, <span class="at">source =</span> source, <span class="at">spop =</span> pop, <span class="at">sid =</span> sid, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">method =</span> awi)),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressWarnings</span>(<span class="fu">pp_estimate</span>(<span class="at">target =</span> target, <span class="at">source =</span> source, <span class="at">spop =</span> pop, <span class="at">sid =</span> sid, </span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">volume =</span> floors, <span class="at">method =</span> vwi)),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aw_interpolate</span>(target, <span class="at">tid =</span> tid, <span class="at">source =</span> source, <span class="at">sid =</span> <span class="st">&#39;sid&#39;</span>, </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">weight =</span> <span class="st">&#39;sum&#39;</span>, <span class="at">output =</span> <span class="st">&#39;sf&#39;</span>, <span class="at">extensive =</span> <span class="st">&#39;pop&#39;</span>),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aw_interpolate</span>(target, <span class="at">tid =</span> tid, <span class="at">source =</span> source, <span class="at">sid =</span> <span class="st">&#39;sid&#39;</span>, </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">weight =</span> <span class="st">&#39;total&#39;</span>, <span class="at">output =</span> <span class="st">&#39;sf&#39;</span>, <span class="at">extensive =</span> <span class="st">&#39;pop&#39;</span>),</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">suppressWarnings</span>(<span class="fu">st_interpolate_aw</span>(source[<span class="st">&#39;pop&#39;</span>], target, <span class="at">extensive =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Unit: milliseconds</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                                                                        expr</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   suppressWarnings(pp_estimate(target = target, source = source,      spop = pop, sid = sid, method = awi))</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  suppressWarnings(pp_estimate(target = target, source = source,      spop = pop, sid = sid, volume = floors, method = vwi))</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      aw_interpolate(target, tid = tid, source = source, sid = &quot;sid&quot;,      weight = &quot;sum&quot;, output = &quot;sf&quot;, extensive = &quot;pop&quot;)</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    aw_interpolate(target, tid = tid, source = source, sid = &quot;sid&quot;,      weight = &quot;total&quot;, output = &quot;sf&quot;, extensive = &quot;pop&quot;)</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                suppressWarnings(st_interpolate_aw(source[&quot;pop&quot;], target, extensive = TRUE))</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       min        lq      mean    median        uq      max neval</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   75.1477  75.98945  78.68748  77.30625  79.95275 140.9858   100</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   75.2326  76.06260  78.39802  76.83460  78.61710 143.3946   100</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   90.2671  91.97405  94.21188  93.64710  96.31200 102.9580   100</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  117.3386 119.52915 122.12437 121.30625 124.34335 134.5341   100</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   91.7960  93.56330  95.82497  94.94145  98.27320 101.6436   100</span></span></code></pre></div>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>In this vignette a demonstration and a comparative analysis of areal
-interpolation packages implemented in urban population data is
-undertaken. <code>sf</code> and <code>areal</code> provide general
-purpose AWI functionality while <code>populR</code> focuses on areal
-interpolation of population data. Additionally, <code>populR</code>
-provides VWI which, to the best of my knowledge, extends R’s existing
-functionality.</p>
-<p>Mytilini, Greece was used as the case study to investigate three main
-pillars: a) implementation, b) results, c) performance. Notes on
-implementation indicate that <code>sf</code> requires only 3 arguments
-to use while <code>populR</code> at least 5 and <code>areal</code> 7.
-The results provide insight that <code>sf</code> and <code>awt</code>
-may not be ideal for data that are not completely overlapping. Moreover,
-<code>aws</code> and <code>awi</code> obtained the same results while
-<code>vwi</code> outperformed the others in comparison to the reference
-data set. Finally, <code>populR</code> performs much faster than
-<code>sf</code> and <code>areal</code> packages.</p>
+<p>In this vignette a demonstration and a comparative analysis of areal interpolation packages implemented in urban population data is undertaken. <code>sf</code> and <code>areal</code> provide general purpose AWI functionality while <code>populR</code> focuses on areal interpolation of population data. Additionally, <code>populR</code> provides VWI which, to the best of my knowledge, extends R’s existing functionality.</p>
+<p>Mytilini, Greece was used as the case study to investigate three main pillars: a) implementation, b) results, c) performance. Notes on implementation indicate that <code>sf</code> requires only 3 arguments to use while <code>populR</code> at least 5 and <code>areal</code> 7. The results provide insight that <code>sf</code> and <code>awt</code> may not be ideal for data that are not completely overlapping. Moreover, <code>aws</code> and <code>awi</code> obtained the same results while <code>vwi</code> outperformed the others in comparison to the reference data set. Finally, <code>populR</code> performs much faster than <code>sf</code> and <code>areal</code> packages.</p>
 </div>
 
 
