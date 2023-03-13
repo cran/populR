@@ -7,8 +7,8 @@
 pp_compare(x, estimated, actual, title)
 }
 \arguments{
-\item{x}{An object of class \code{sf} including estimated and actual
-values}
+\item{x}{An object of class \code{sf} or \code{data.frame} including
+estimated and actual values}
 
 \item{estimated}{Population estimates using \link[populR]{pp_estimate}
 function}

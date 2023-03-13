@@ -10,7 +10,7 @@ pp_vgi(x, key)
 \item{x}{an object of class \code{sf} that is used to interpolate data
 to. Usually, x may include polygon features representing building units}
 
-\item{key}{osm feature key see \link[osmdata]{available_features}}
+\item{key}{osm feature key (quoted) see \link[osmdata]{available_features}}
 }
 \value{
 an object of class \code{sf} including OSM features
@@ -22,11 +22,11 @@ Download and Count OSM Features Over Target
 \dontrun{
     data('trg')
 
-    # example using just key
-    pp_vgi(trg, key = amenity)
+    # example using just a key
+    pp_vgi(trg, key = 'amenity')
 
-    # example using both key and value arguments
-    pp_vgi(trg, key = amenity)
+    # example using two keys
+    pp_vgi(trg, key = c('amenity', 'shop')
 }
 
 }

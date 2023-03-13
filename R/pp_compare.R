@@ -1,7 +1,7 @@
 #' Comparison to Other Data
 #'
-#' @param x An object of class \code{sf} including estimated and actual
-#'      values
+#' @param x An object of class \code{sf} or \code{data.frame} including
+#'      estimated and actual values
 #' @param estimated Population estimates using \link[populR]{pp_estimate}
 #'      function
 #' @param actual Actual population values
@@ -85,14 +85,15 @@ pp_compare <- function(x, estimated, actual, title) {
   # calculate rmse, calculate correlation coefficient and create linear regression model
   rmse <- Metrics::rmse(x[, actual, drop = T], x[, estimated, drop = T])
   mae <- Metrics::mae(x[, actual, drop = T], x[, estimated, drop = T])
-  linear_model <- lm(x[, estimated, drop = T] ~ x[, actual, drop = T])
-  correlation_coef <- round(cor(x[, estimated, drop = T], x[, actual, drop = T]), 5)
+  linear_model <- lm(x[, actual, drop = T] ~ x[, estimated, drop = T])
+  correlation_coef <- round(summary(linear_model)$r.squared, 3)
   myList <- list(rmse = rmse, mae = mae, linear_model = linear_model, correlation_coef = correlation_coef)
 
   # scatterplot with line and correlation coeficient as text
-  plot(x[, actual, drop = T], x[, estimated, drop = T], col="#634B56", main = title, xlab = "Actual", ylab = "Estimated")
+  plot(x[, actual, drop = T], x[, estimated, drop = T], col="#634B56",
+       main = substitute(paste(title, ", R"^2~paste("= ", correlation_coef)), list(title = title,
+       correlation_coef = correlation_coef)), cex.main = 1.2, xlab = "Actual", ylab = "Estimated")
   abline(linear_model, col="#FD8D3C")
-  text(x = (max(x[, actual, drop = T]) + min(x[, actual, drop = T]))/2, y = (max(x[, estimated, drop = T]) + min(x[, estimated, drop = T]))/2, label = paste0("r^2 = ", correlation_coef))
 
   return(myList)
 
